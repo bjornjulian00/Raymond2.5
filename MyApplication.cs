@@ -107,8 +107,6 @@ namespace Template
 			int in2X = input2.GetLength(0);
 			int in2Y = input2.GetLength(1);
 
-			float[,] output = new float[in1X, in1Y];
-
 			// 0 = Addition
 			// 1 = Subtraction
 			// 2 = Scalar Multiplication
@@ -116,6 +114,8 @@ namespace Template
 
 			if (operationID == 0 || operationID == 1) // Addition and subtraction
 			{
+				float[,] output = new float[in1X, in1Y];
+
 				// Check if matrices are both same size, else return input1
 				if (in1X != in2X || in1Y != in2Y)
 				{
@@ -144,6 +144,8 @@ namespace Template
 
 			else if (operationID == 2) // Scalar multiplication
 			{
+				float[,] output = new float[in1X, in1Y];
+
 				for (int x = 0; x < in1X; x++)
 				{
 					for (int y = 0; y < in1Y; y++)
@@ -157,6 +159,8 @@ namespace Template
 
 			else if (operationID == 3) // Matrix multiplication
 			{
+				float[,] output = new float[in1X, in2Y];
+
 				// Check it matrices are suitable for multiplication, else return input1
 				if (in1X != in2Y || in1Y != in2X)
 				{
@@ -164,14 +168,16 @@ namespace Template
 					return input1;
 				}
 
-				int c[,] = new int[a.GetLength(0), b.GetLength(1)];
-				for (int i = 0; i < c.GetLength(0); i++)
+				for (int i = 0; i < in1X; i++)
 				{
-					for (int j = 0; j < c.GetLength(1); j++)
+					for (int j = 0; j < in2Y; j++)
 					{
-						c[i, j] = 0;
-						for (int k = 0; k < a.GetLength(1); k++) // OR k<b.GetLength(0)
-							c[i, j] = c[i, j] + a[i, k] * b[k, j];
+						output[i, j] = 0;
+
+						for (int k = 0; k < in1Y; k++)
+						{
+							output[i, j] = output[i, j] + input1[i, k] * input2[k, j];
+						}
 					}
 				}
 			}
