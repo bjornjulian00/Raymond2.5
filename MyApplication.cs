@@ -1,4 +1,7 @@
+using System;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
+using System.Security.Cryptography.X509Certificates;
 using OpenTK;
 
 namespace Template
@@ -85,4 +88,96 @@ namespace Template
 			}
 		}
 	}
+
+	public class SceneGraph
+    {
+		public SceneGraph (SceneGraph parent, SceneGraph child)
+        {
+			SceneGraph parentEl = parent;
+			SceneGraph childEl = child;
+        }
+
+        public float[,] MatrixTransform (float[,] inputArr1, float[,] inputArr2, int scalar, int operationID)
+        {
+			//Importing matrices and consolidating info
+			float[,] input1 = inputArr1;
+			int in1X = input1.GetLength(0);
+			int in1Y = input1.GetLength(1);
+			float[,] input2 = inputArr2;
+			int in2X = input2.GetLength(0);
+			int in2Y = input2.GetLength(1);
+
+			float[,] output = new float[in1X, in1Y];
+
+			// 0 = Addition
+			// 1 = Subtraction
+			// 2 = Scalar Multiplication
+			// 3 = Matrix Multiplication
+
+			if (operationID == 0 || operationID == 1) // Addition and subtraction
+			{
+				// Check if matrices are both same size, else return input1
+				if (in1X != in2X || in1Y != in2Y)
+				{
+					Console.WriteLine("Matrix addition / subtraction failed, matrices not compatible.");
+					return input1;
+				}
+
+				// Set coefficient for adding / subtracting
+				int coefficient;
+				if (operationID == 0)
+					coefficient = 1;
+				else
+					coefficient = -1;
+
+				// Add / subtract matrices
+				for (int x = 0; x < in1X; x++)
+				{
+					for (int y = 0; y < in1Y; y++)
+					{
+						output[x, y] = input1[x, y] + (input2[x, y] * coefficient);
+					}
+				}
+
+				return output;
+			}
+
+			else if (operationID == 2) // Scalar multiplication
+			{
+				for (int x = 0; x < in1X; x++)
+				{
+					for (int y = 0; y < in1Y; y++)
+					{
+						output[x, y] = (input1[x, y] * scalar);
+					}
+				}
+
+				return output;
+			}
+
+			else if (operationID == 3) // Matrix multiplication
+			{
+				// Check it matrices are suitable for multiplication, else return input1
+				if (in1X != in2Y || in1Y != in2X)
+				{
+					Console.WriteLine("Matrix multiplication failed, matrices not compatible.");
+					return input1;
+				}
+
+				int c[,] = new int[a.GetLength(0), b.GetLength(1)];
+				for (int i = 0; i < c.GetLength(0); i++)
+				{
+					for (int j = 0; j < c.GetLength(1); j++)
+					{
+						c[i, j] = 0;
+						for (int k = 0; k < a.GetLength(1); k++) // OR k<b.GetLength(0)
+							c[i, j] = c[i, j] + a[i, k] * b[k, j];
+					}
+				}
+			}
+
+			// If no valid operationID is given, return input1
+			return input1;
+        }
+    }
 }
