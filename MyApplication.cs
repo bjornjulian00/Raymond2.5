@@ -90,13 +90,7 @@ namespace Template
 	}
 
 	public class SceneGraph
-    {
-		public SceneGraph (SceneGraph parent, SceneGraph child)
-        {
-			SceneGraph parentEl = parent;
-			SceneGraph childEl = child;
-        }
-
+	{
         public float[,] MatrixTransform (float[,] inputArr1, float[,] inputArr2, int scalar, int operationID)
         {
 			//Importing matrices and consolidating info
