@@ -39,6 +39,9 @@ namespace INFOGR2019Tmpl8
 			{
 				mesh.Render(renderShader, mesh.position, mesh.position, camMat * viewMat, mesh.texture, frameTime);
 			}
+			currentTarget.Unbind();
+
+			postQuad.Render(postShader, currentTarget.GetTextureID());
 		}
 
 		public float[,] MatrixTransform(float[,] inputArr1, float[,] inputArr2, int scalar, int operationID)
