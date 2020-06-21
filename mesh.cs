@@ -46,7 +46,7 @@ namespace Template
 			}
 		}
 
-		public void prepareTransform( )
+		//public void prepareTransform( )
 
 		// render the mesh using the supplied shader and matrix
 		public void Render( Shader shader, Matrix4 transform, Texture texture, float frameTime)
