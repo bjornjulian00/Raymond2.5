@@ -1,8 +1,9 @@
-using System;
 using System.Diagnostics;
-using System.Runtime.ExceptionServices;
-using System.Security.Cryptography.X509Certificates;
+using System.Linq.Expressions;
 using OpenTK;
+//using OpenTK.Graphics.ES10;
+using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
 
 namespace Template
 {
@@ -11,7 +12,7 @@ namespace Template
 		// member variables
 		public Surface screen;                  // background surface for printing etc.
 		Mesh mesh, floor;                       // a mesh to draw using OpenGL
-		const float PI = 3.1415926535f;         // PI
+		const float PI = 3.1415926535f;         // Pi
 		float a = 0;                            // teapot rotation angle
 		Stopwatch timer;                        // timer for measuring frame duration
 		Shader shader;                          // shader to use for rendering
@@ -20,6 +21,8 @@ namespace Template
 		RenderTarget target;                    // intermediate render target
 		ScreenQuad quad;                        // screen filling quad for post processing
 		bool useRenderTarget = true;
+
+		float xMove, zMove;
 
 		// initialize
 		public void Init()
@@ -39,6 +42,13 @@ namespace Template
 			// create the render target
 			target = new RenderTarget( screen.width, screen.height );
 			quad = new ScreenQuad();
+
+			int lightID = GL.GetUniformLocation(shader.programID, "ambientLight");
+			GL.UseProgram(shader.programID);
+			GL.Uniform3(lightID, new Vector3(0.1f, 0.1f, 0.1f));
+
+			light light1 = new light(shader, new Vector3(0, 7, 0), new Vector3(10, 10, 10));
+			
 		}
 
 		// tick for background surface
@@ -46,6 +56,16 @@ namespace Template
 		{
 			screen.Clear( 0 );
 			screen.Print( "hello world", 2, 2, 0xffff00 );
+			readKey();
+		}
+
+		public void readKey()
+        {
+			KeyboardState keyboardIn = OpenTK.Input.Keyboard.GetState();
+			if (keyboardIn.IsKeyDown(OpenTK.Input.Key.W))	zMove += .05f;
+			if (keyboardIn.IsKeyDown(OpenTK.Input.Key.A))	xMove += .05f;
+			if (keyboardIn.IsKeyDown(OpenTK.Input.Key.S))	zMove -= .05f;
+			if (keyboardIn.IsKeyDown(OpenTK.Input.Key.D))	xMove -= .05f;
 		}
 
 		// tick for OpenGL rendering code
@@ -60,8 +80,17 @@ namespace Template
 			float angle90degrees = PI / 2;
 			Matrix4 Tpot = Matrix4.CreateScale( 0.5f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
 			Matrix4 Tfloor = Matrix4.CreateScale( 4.0f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
-			Matrix4 Tcamera = Matrix4.CreateTranslation( new Vector3( 0, -14.5f, 0 ) ) * Matrix4.CreateFromAxisAngle( new Vector3( 1, 0, 0 ), angle90degrees );
+			Matrix4 Tcamera = Matrix4.CreateTranslation(
+					new Vector3( xMove, -14.5f, zMove ) ) * 
+				Matrix4.CreateFromAxisAngle( 
+					new Vector3( 1, 0, 0 ), angle90degrees );
 			Matrix4 Tview = Matrix4.CreatePerspectiveFieldOfView( 1.2f, 1.3f, .1f, 1000 );
+			Matrix4 toWorld = Tpot;
+			Matrix4 specRef = Tcamera;
+
+			int specIn = GL.GetUniformLocation(shader.programID, "specRef");
+			GL.UseProgram(shader.programID);
+			GL.Uniform3(specIn, new Vector3(0.1f, 0.1f, 0.1f));
 
 			// update rotation
 			a += 0.001f * frameDuration;
@@ -73,8 +102,8 @@ namespace Template
 				target.Bind();
 
 				// render scene to render target
-				mesh.Render( shader, Tpot * Tcamera * Tview, wood );
-				floor.Render( shader, Tfloor * Tcamera * Tview, wood );
+				mesh.Render( shader, Tpot * Tcamera * Tview, wood, Tpot );
+				floor.Render( shader, Tfloor * Tcamera * Tview, wood, Tfloor );
 
 				// render quad
 				target.Unbind();
@@ -83,8 +112,8 @@ namespace Template
 			else
 			{
 				// render scene directly to the screen
-				mesh.Render( shader, Tpot * Tcamera * Tview, wood );
-				floor.Render( shader, Tfloor * Tcamera * Tview, wood );
+				mesh.Render( shader, Tpot * Tcamera * Tview, wood, Tpot );
+				floor.Render( shader, Tfloor * Tcamera * Tview, wood, Tfloor );
 			}
 		}
 	}

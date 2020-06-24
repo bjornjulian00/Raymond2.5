@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 using System.Runtime.InteropServices;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
@@ -17,11 +19,24 @@ namespace Template
 		int triangleBufferId;                   // triangle buffer
 		int quadBufferId;                       // quad buffer
 
+		// Render tree setup
+		public Matrix4 location;
+		public Vector3 modelAxis;
+		public Vector3 worldAxis;
+		public float modelRotate = 0;
+		public float worldRotate = 0;
+		public float modelRSpeed = 0;
+		public float worldRSpeed = 0;
+		public Texture dummyTex;
+		public List<Mesh> child;
+
 		// constructor
 		public Mesh( string fileName )
 		{
 			MeshLoader loader = new MeshLoader();
 			loader.Load( this, fileName );
+
+			child = new List<Mesh>();
 		}
 
 		// initialization; called during first render
@@ -46,11 +61,27 @@ namespace Template
 			}
 		}
 
-		//public void prepareTransform( )
-
 		// render the mesh using the supplied shader and matrix
-		public void Render( Shader shader, Matrix4 transform, Texture texture, float frameTime)
+		public void Render( Shader shader, Matrix4 transform, Texture texture, Matrix4 toWorld)
 		{
+			// set location of mesh before recursive rendering
+			location = location * Matrix4.CreateFromAxisAngle(worldAxis, worldRotate);
+
+			// go down list of children and recursively render their children
+			for (int i = 0; i < child.Count; i++)
+            {
+				Mesh currentMesh = child[i];
+				currentMesh.Render(shader, currentMesh.location, currentMesh.dummyTex, currentMesh.location);
+            }
+
+			// change location based on current rotation
+			location = Matrix4.CreateFromAxisAngle(this.modelAxis, modelRotate) * location;
+			toWorld = Matrix4.CreateFromAxisAngle(this.modelAxis, modelRotate) * toWorld;
+
+			// rotate models
+			modelRotate += modelRSpeed;
+			worldRotate += worldRSpeed;
+
 			// on first run, prepare buffers
 			Prepare( shader );
 
@@ -68,6 +99,7 @@ namespace Template
 
 			// pass transform to vertex shader
 			GL.UniformMatrix4( shader.uniform_mview, false, ref transform );
+			GL.UniformMatrix4( shader.uniform_2wrld, false, ref toWorld );
 
 			// enable position, normal and uv attributes
 			GL.EnableVertexAttribArray( shader.attribute_vpos );

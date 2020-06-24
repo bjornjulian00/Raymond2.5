@@ -13,8 +13,7 @@ void main()
 	// retrieve input pixel
 	outputColor = texture( pixels, uv ).rgb;
 	// apply dummy postprocessing effect
-float dist = P.x * P.x + P.y * P.y;
-	outputColor *= sin( dist * 50 ) * 0.25f + 0.75f;
+	// outputColor *= sin( P.y * 400 ) * 0.15f + 0.85f;
 }
 
 // EOF
