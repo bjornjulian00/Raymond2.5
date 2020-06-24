@@ -16,7 +16,7 @@ namespace Template
         ScreenQuad postQuad;
         Surface display;
 
-        List<Mesh> renderTree;
+        public List<Mesh> renderTree;
 
         public scenegraph (Surface display)
         {
@@ -36,20 +36,16 @@ namespace Template
             renderTree.Add(childMesh);
         }
 
-        public void Render(Matrix4 Tcamera, Matrix4 Tview, RenderTarget target, float frameDuration)
+        public void Render(Matrix4 Tcamera, Matrix4 Tview, RenderTarget target)
         {
             this.rTarget = target;
-
-            // enable render target
             target.Bind();
 
             foreach (Mesh mesh in renderTree)
             {
-                mesh.Render(shader, mesh.location, mesh.dummyTex, mesh.location);
+                mesh.Render(shader, mesh.location, mesh.texture, mesh.location);
             }
 
-
-            // render quad
             target.Unbind();
             postQuad.Render(postShader, target.GetTextureID());
         }

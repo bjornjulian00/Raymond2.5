@@ -27,7 +27,7 @@ namespace Template
 		public float worldRotate = 0;
 		public float modelRSpeed = 0;
 		public float worldRSpeed = 0;
-		public Texture dummyTex;
+		public Texture texture;
 		public List<Mesh> child;
 
 		// constructor
@@ -68,10 +68,9 @@ namespace Template
 			location = location * Matrix4.CreateFromAxisAngle(worldAxis, worldRotate);
 
 			// go down list of children and recursively render their children
-			for (int i = 0; i < child.Count; i++)
+			foreach (Mesh currentMesh in child)
             {
-				Mesh currentMesh = child[i];
-				currentMesh.Render(shader, currentMesh.location, currentMesh.dummyTex, currentMesh.location);
+				currentMesh.Render(shader, currentMesh.location, currentMesh.texture, currentMesh.location);
             }
 
 			// change location based on current rotation
@@ -126,6 +125,9 @@ namespace Template
 				GL.BindBuffer( BufferTarget.ElementArrayBuffer, quadBufferId );
 				GL.DrawArrays( PrimitiveType.Quads, 0, quads.Length * 4 );
 			}
+
+			GL.BindBuffer(BufferTarget.ElementArrayBuffer, quadBufferId);
+			GL.DrawArrays(PrimitiveType.Quads, 0, quads.Length * 4);
 
 			// restore previous OpenGL state
 			GL.UseProgram( 0 );
