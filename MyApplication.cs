@@ -22,6 +22,7 @@ namespace Template
 		ScreenQuad quad;                        // screen filling quad for post processing
 		bool useRenderTarget = true;
 		float xMove, zMove, rotate;
+		public light light1;
 
 		scenegraph sGraph;
 
@@ -54,11 +55,11 @@ namespace Template
 
 			shader = new Shader("../../shaders/vs.glsl", "../../shaders/fs.glsl");
 			postproc = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_post.glsl");
+
 			int lightID = GL.GetUniformLocation(shader.programID, "ambientLight");
+			light1 = new light(shader, new Vector3(0, 7, 0), new Vector3(10, 10, 10));
 			GL.UseProgram(shader.programID);
 			GL.Uniform3(lightID, new Vector3(0.1f, 0.1f, 0.1f));
-
-			light light1 = new light(shader, new Vector3(0, 7, 0), new Vector3(10, 10, 10));
 		}
 
 		// tick for background surface
@@ -88,49 +89,23 @@ namespace Template
 			timer.Reset();
 			timer.Start();
 
-			// prepare matrix for vertex shader
+			a += 0.001f * frameDuration;
+			if (a > 2 * PI) a -= 2 * PI;
+
 			float angle90degrees = PI / 2;
-			Matrix4 Tpot = Matrix4.CreateScale( 0.5f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
-			Matrix4 Tfloor = Matrix4.CreateScale( 4.0f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
 			Matrix4 Tcamera = Matrix4.CreateTranslation(
 					new Vector3( xMove, -14.5f, zMove ) ) * 
 				Matrix4.CreateFromAxisAngle( 
-					new Vector3( 1, 0, 0 ), angle90degrees );
-			Matrix4.CreateFromAxisAngle(
-					new Vector3(0, 0, 1), rotate);
+					new Vector3( 1, 0, 0 ), angle90degrees ) *
+				Matrix4.CreateFromAxisAngle(
+					new Vector3( 0, 0, 1 ), rotate);
 			Matrix4 Tview = Matrix4.CreatePerspectiveFieldOfView( 1.2f, 1.3f, .1f, 1000 );
-			Matrix4 toWorld = Tpot;
-			Matrix4 specRef = Tcamera;
 
 			int specIn = GL.GetUniformLocation(shader.programID, "specRef");
 			GL.UseProgram(shader.programID);
 			GL.Uniform3(specIn, new Vector3(0.1f, 0.1f, 0.1f));
 
-			// update rotation
-			a += 0.001f * frameDuration;
-			if( a > 2 * PI ) a -= 2 * PI;
-
 			sGraph.Render(Tcamera, Tview, target);
-
-			/*if( useRenderTarget )
-			{
-				// enable render target
-				target.Bind();
-
-				// render scene to render target
-				mesh.Render( shader, Tpot * Tcamera * Tview, wood, Tpot );
-				floor.Render( shader, Tfloor * Tcamera * Tview, wood, Tfloor );
-
-				// render quad
-				target.Unbind();
-				quad.Render( postproc, target.GetTextureID() );
-			}
-			else
-			{
-				// render scene directly to the screen
-				mesh.Render( shader, Tpot * Tcamera * Tview, wood, Tpot );
-				floor.Render( shader, Tfloor * Tcamera * Tview, wood, Tfloor );
-			}*/
 		}
 	}
 }

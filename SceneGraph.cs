@@ -12,9 +12,9 @@ namespace Template
     {
         public Shader shader;
         public Shader postShader;
-        RenderTarget rTarget;
+        public RenderTarget rTarget;
         ScreenQuad postQuad;
-        Surface display;
+        //Surface display;
 
         public List<Mesh> renderTree;
 
@@ -43,7 +43,7 @@ namespace Template
 
             foreach (Mesh mesh in renderTree)
             {
-                mesh.Render(shader, mesh.location, mesh.texture, mesh.location);
+                mesh.Render(shader, mesh.location, mesh.location, Tcamera * Tview, mesh.texture);
             }
 
             target.Unbind();
