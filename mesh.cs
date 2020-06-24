@@ -65,10 +65,7 @@ namespace Template
 		public void Render( Shader shader, Matrix4 transform, Matrix4 toWorld, Matrix4 view, Texture texture)
 		{
 			// set location of mesh before recursive rendering
-			Matrix4 currentLocation = location * Matrix4.CreateFromAxisAngle(worldAxis, worldRotate) * view;
-			Console.WriteLine(Matrix4.CreateFromAxisAngle(worldAxis, worldRotate));
-			Console.WriteLine(worldAxis);
-			Console.WriteLine(worldRotate);
+			Matrix4 currentLocation = location * view * Matrix4.CreateFromAxisAngle(worldAxis, worldRotate);
 
 			// go down list of children and recursively render their children
 			foreach (Mesh currentMesh in child)

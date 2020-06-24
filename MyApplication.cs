@@ -36,8 +36,8 @@ namespace Template
 			mesh = new Mesh( "../../assets/teapot.obj" );
 			floor = new Mesh( "../../assets/floor.obj" );
 			floor.texture = wood;
-			floor.modelAxis = new Vector3(0, 0, 0);
-			floor.worldAxis = new Vector3(0, 0, 0);
+			floor.modelAxis = new Vector3(0, 1, 0);
+			floor.worldAxis = new Vector3(0, 1, 0);
 			floor.modelRotate = 0.0f;
 			floor.modelRSpeed = 0.0f;
 			mesh.texture = wood;
@@ -56,10 +56,10 @@ namespace Template
 			shader = new Shader("../../shaders/vs.glsl", "../../shaders/fs.glsl");
 			postproc = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_post.glsl");
 
-			int lightID = GL.GetUniformLocation(shader.programID, "ambientLight");
-			light1 = new light(shader, new Vector3(0, 7, 0), new Vector3(10, 10, 10));
+			int lightID = GL.GetUniformLocation(shader.programID, "lightPos");
+			light1 = new light(shader, new Vector3(0, 2, 0), new Vector3(10, 10, 10));
 			GL.UseProgram(shader.programID);
-			GL.Uniform3(lightID, new Vector3(0.1f, 0.1f, 0.1f));
+			GL.Uniform3(lightID, new Vector3(1, 1, 1));
 		}
 
 		// tick for background surface
